@@ -3,32 +3,34 @@ import SensorChart from "./components/SensorChart";
 
 function App() {
   const [data, setData] = useState([]);
-  const [token, setToken] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let jwt = null;
+
     const fetchData = async () => {
       try {
-        // --- Step 1: Login to get JWT ---
-        const loginRes = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/login`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username: "demo", password: "demo" })
+        // --- Step 1: Login to get JWT (only if we don't have one yet) ---
+        if (!jwt) {
+          const loginRes = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/api/login`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username: "demo", password: "demo" })
+            }
+          );
+
+          if (!loginRes.ok) {
+            const text = await loginRes.text();
+            console.error("Login failed:", text);
+            setError("Login failed");
+            return;
           }
-        );
 
-        if (!loginRes.ok) {
-          const text = await loginRes.text();
-          console.error("Login failed:", text);
-          setError("Login failed");
-          return;
+          const loginJson = await loginRes.json();
+          jwt = loginJson.token;
         }
-
-        const loginJson = await loginRes.json();
-        const jwt = loginJson.token;
-        setToken(jwt);
 
         // --- Step 2: Fetch sensor data using JWT ---
         const res = await fetch(
@@ -53,7 +55,13 @@ function App() {
       }
     };
 
+    // Fetch immediately
     fetchData();
+
+    // Auto-refresh every 5 seconds
+    const interval = setInterval(fetchData, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
