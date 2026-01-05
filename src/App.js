@@ -1,5 +1,5 @@
-import SensorChart from "../components/SensorChart";
 import React, { useEffect, useState } from "react";
+import SensorChart from "../components/SensorChart";
 
 function App() {
   const [data, setData] = useState([]);
@@ -27,37 +27,23 @@ function App() {
     fetchData();
   }, []);
 
-return (
-  <div>
-    <h2>Sensor Dashboard</h2>
-
-    {/* Chart goes here */}
-    {readings.length > 0 && <SensorChart readings={readings} />}
-
-    {/* Your existing list */}
-    <ul>
-      {readings.map(r => (
-        <li key={r.timestamp}>
-          {r.timestamp}: {r.temperature}°C / {r.humidity}%
-        </li>
-      ))}
-    </ul>
-  </div>
-);
-
-  /*return (
+  return (
     <div>
-      <h1>IoT Sensor Dashboard (PWA)</h1>
-      {token ? <p>Authenticated with JWT</p> : <p>Logging in...</p>}
+      <h2>Sensor Dashboard</h2>
+
+      {/* Chart */}
+      {data.length > 0 && <SensorChart readings={data} />}
+
+      {/* List */}
       <ul>
-        {data.map((d, i) => (
-          <li key={i}>
-            {d.timestamp}: {d.temperature}°C / {d.humidity}%
+        {data.map((r) => (
+          <li key={r.timestamp}>
+            {r.timestamp}: {r.temperature}°C / {r.humidity}%
           </li>
         ))}
       </ul>
     </div>
   );
-} */
+}
 
 export default App;
