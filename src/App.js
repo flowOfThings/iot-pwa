@@ -10,7 +10,7 @@ function App() {
 
     const fetchData = async () => {
       try {
-        // --- Step 1: Login to get JWT (only if we don't have one yet) ---
+        // --- Step 1: Login once ---
         if (!jwt) {
           const loginRes = await fetch(
             `${process.env.REACT_APP_BACKEND_URL}/api/login`,
@@ -32,7 +32,7 @@ function App() {
           jwt = loginJson.token;
         }
 
-        // --- Step 2: Fetch sensor data using JWT ---
+        // --- Step 2: Fetch sensor data ---
         const res = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/data/`,
           {
@@ -64,6 +64,11 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
+  // Sort oldest → newest (Option A)
+  const sortedData = [...data].sort(
+    (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+  );
+
   return (
     <div style={{ padding: "20px" }}>
       <h2>Sensor Dashboard</h2>
@@ -71,16 +76,18 @@ function App() {
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {/* Chart */}
-      {data.length > 0 && <SensorChart readings={data} />}
+      {sortedData.length > 0 && <SensorChart readings={sortedData} />}
 
-      {/* List */}
+      {/* List (commented out) */}
+      {/*
       <ul>
-        {data.map((r) => (
+        {sortedData.map((r) => (
           <li key={r.timestamp}>
             {r.timestamp}: {r.temperature}°C / {r.humidity}%
           </li>
         ))}
       </ul>
+      */}
     </div>
   );
 }
